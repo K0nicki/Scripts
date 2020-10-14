@@ -1,5 +1,6 @@
 #!/bin/bash
 # Update, upgrade and remove unnecessary files
+# Call it with sudo mode
 
 # Update and upgrade, save logs
 apt update && apt upgrade -y > file
