@@ -5,14 +5,17 @@
 
 [CmdletBinding(DefaultParameterSetName='args')]
 param (
-    [Parameter()][string]$ext = "sh",
-    [Parameter()][string]$addr = "konrad@192.168.56.105:/home/konrad",
+    [Parameter()][string]$ext = "sh",                                           # Default extension for scripts
+    [Parameter()][string]$addr = "konrad@192.168.56.105:/home/konrad",          # My VM address
     [Parameter(ValueFromRemainingArguments, ParameterSetName='args')]$files
 )
 
 # Cut path
 function cutPath {
-    param ($file)
+    param (
+        $file
+    )
+
     if ($file.SubString(0,2) -eq ".\") {
         return $file.SubString(2)                      
     } else {
@@ -22,7 +25,10 @@ function cutPath {
 
 # Validate extension and cut path 
 function remakeFiles {
-    param ($files)
+    param (
+        $files
+    )
+
     if ($files -is [array]) {
             
         $checked_files = New-Object string[] $files.length          
@@ -44,7 +50,10 @@ function remakeFiles {
 
 # Transform string into array of strings
 function toArray {
-    param ($files)
+    param (
+        $files
+    )
+
     $countString = ($files.ToCharArray() | Where-Object {$_ -eq ' '} | Measure-Object).Count
 
     if ($countString -eq 0) {
@@ -54,6 +63,7 @@ function toArray {
     }
 }
 
+# Upload files
 function upload {
     param ($array)
     
@@ -64,25 +74,35 @@ function upload {
     }
 }
 
+# Upload all files w/ appropriate extension in the workdir
 function uploadAll {
     cmd.exe /c scp -r $pwd\*.$ext $addr                             # Upload all files w/ selected extension
 }
 
+# Validate files
+function checkFiles {
+    param (
+        $files
+    )
+    $filesArr = toArray $files
+    
+    $checked_files = remakeFiles $filesArr          
+
+    # Upload files
+    upload $checked_files
+}
+
 # Upload files into the server
 function run {
-    param ($files)
+    param (
+        $files
+    )
 
     if ($files.length -eq 0) {
         uploadAll
     } else {
-        $filesArr = toArray $files
-    
-        $checked_files = remakeFiles $filesArr          
-    
-        # Upload files
-        upload $checked_files
+        checkFiles $files
     }
 }
-
 
 run $files

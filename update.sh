@@ -1,15 +1,16 @@
 #!/bin/bash
 # Update, upgrade and remove unnecessary files
-# Call it with sudo mode
 
-# Update and upgrade, save logs
-apt update && apt upgrade -y > file 
-
-if [ $(cat file | grep "autoremove" -c) -gt 0 ]; then
-	
-	# Remove unnecessary files
-	apt autoremove -y &
+# If not root, run it as root
+if [ $EUID -ne 0 ]; then
+    sudo $(pwd -L)/update.sh
+    exit
 fi
 
-# Remove logs
-rm file &
+# Update and upgrade
+apt update && apt upgrade -y
+apt autoremove -y
+apt clean
+
+# Remove package configuration files
+apt purge -y $(dpkg -l | awk '/^rc/ { print $2 }')
