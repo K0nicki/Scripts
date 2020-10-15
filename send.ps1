@@ -1,19 +1,88 @@
 # Script sends selected file to server. 
-# It demands '.sh' extension
 # Reference to workdir
 
-$address = "konrad@192.168.56.105:/home/konrad"                 # Destination address
-$files = $args                    
+# Usage: send [-ext extension] [-addr address] files
 
-if ($files.length -eq 0) {
-    scp -r $pwd\'*.sh' $address
-} else {
-    foreach ($file in $files) {
-        $extension = [IO.Path]::GetExtension($files)            # Valid file extension           
-        if ($extension -eq ".sh") {   
-            scp $pwd\$file $address                             # Demand passwd for each file
-        } else {
-            Write-Error 'Plik bez rozszerzenia .sh'
-        }
+[CmdletBinding(DefaultParameterSetName='args')]
+param (
+    [Parameter()][string]$ext = "sh",
+    [Parameter()][string]$addr = "konrad@192.168.56.105:/home/konrad",
+    [Parameter(ValueFromRemainingArguments, ParameterSetName='args')]$files
+)
+
+# Cut path
+function cutPath {
+    param ($file)
+    if ($file.SubString(0,2) -eq ".\") {
+        return $file.SubString(2)                      
+    } else {
+        return $file
     }
 }
+
+# Validate extension and cut path 
+function remakeFiles {
+    param ($files)
+    if ($files -is [array]) {
+            
+        $checked_files = New-Object string[] $files.length          
+        $counter = 0
+
+        foreach ($file in $files.split(" ")) {
+            $extension = [IO.Path]::GetExtension($file)             # Validate file extension    
+            if ($extension -eq ".$ext") {
+                $file = cutPath $file
+                $checked_files[$counter] = "$pwd\$file"
+                $counter++
+            }
+        }
+        return $checked_files
+    } else {
+        Write-Error "Illegal argument exception"
+    }
+}
+
+# Transform string into array of strings
+function toArray {
+    param ($files)
+    $countString = ($files.ToCharArray() | Where-Object {$_ -eq ' '} | Measure-Object).Count
+
+    if ($countString -eq 0) {
+        return @($files," ")
+    } else {    
+        return $files.split(" ")               
+    }
+}
+
+function upload {
+    param ($array)
+    
+    if ($null -eq $array[0]) {
+        Write-Host "None of files fulfil the requirements"
+    } else {
+        cmd.exe /c scp -r $checked_files $addr                     # Upload all indicated files
+    }
+}
+
+function uploadAll {
+    cmd.exe /c scp -r $pwd\*.$ext $addr                             # Upload all files w/ selected extension
+}
+
+# Upload files into the server
+function run {
+    param ($files)
+
+    if ($files.length -eq 0) {
+        uploadAll
+    } else {
+        $filesArr = toArray $files
+    
+        $checked_files = remakeFiles $filesArr          
+    
+        # Upload files
+        upload $checked_files
+    }
+}
+
+
+run $files

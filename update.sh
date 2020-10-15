@@ -3,13 +3,13 @@
 # Call it with sudo mode
 
 # Update and upgrade, save logs
-apt update && apt upgrade -y > file
+apt update && apt upgrade -y > file 
 
 if [ $(cat file | grep "autoremove" -c) -gt 0 ]; then
 	
 	# Remove unnecessary files
-	apt autoremove -y
+	apt autoremove -y &
 fi
 
 # Remove logs
-rm file
+rm file &
