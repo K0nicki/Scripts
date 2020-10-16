@@ -3,6 +3,7 @@
 # Change file formats in all given files to unix
 import sys
 import subprocess
+import os
 
 # Check if dos2unix command is installed
 def test_dos2unix() :

@@ -1,9 +1,9 @@
 #!/bin/bash
 # Update, upgrade and remove unnecessary files
 
-# If not root, run it as root
+# Require root privilage
 if [ $EUID -ne 0 ]; then
-    sudo $(pwd -L)/update.sh
+    sudo $(pwd -L)/`basename "$0"`
     exit
 fi
 
