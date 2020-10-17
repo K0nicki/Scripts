@@ -1,7 +1,7 @@
 # Script sends selected file to server. 
 # Reference to workdir
 
-# Usage: send [-ext extension] [-addr address] files
+# Usage: send [-ext extension] [-addr address] files (in win tab mode: ".\file" :) )
 
 [CmdletBinding(DefaultParameterSetName='args')]
 param (
