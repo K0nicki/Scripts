@@ -49,9 +49,9 @@ function checkConnection() {
 
 printf "\nEnter your $([[ $SERVER -eq 1 ]] && printf 'CA' || printf 'server') machine user name: " && read USER_NAME            # Ternary operator usage
 printf "\nEnter your $([[ $SERVER -eq 1 ]] && printf 'CA' || printf 'server') machine IP address: " && read IP_ADDRESS
-printf 'Create file for ssh key ...\n'
+printf 'Creating file for ssh key ...\n'
 ssh $USER_NAME@$IP_ADDRESS mkdir -p .ssh
-printf "Send public key to $([[ $SERVER -eq 1 ]] && printf 'server' || printf 'CA') machine ...\n" 
+printf "Sending public key...\n" 
 cat ~/.ssh/id_rsa.pub | ssh $USER_NAME@$IP_ADDRESS 'cat >>.ssh/authorized_keys && chmod 600 .ssh/authorized_keys'
 
 #--------------------------------------------------------------------------------------------------------
