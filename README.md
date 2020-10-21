@@ -5,7 +5,7 @@
 ## Contents:
 ### Shell:
    - [update.sh](https://github.com/K0nicki/Scripts/blob/master/update.sh) - Simple script for updating and upgrading server. Additionaly it removes unnecessary files connected with update
-   - [vpn.sh](https://github.com/K0nicki/Scripts/blob/vpn/vpn.sh) - The script configures and starts OpenVPN service. Demand separate CA machine and connection between them. It works in two modes: Server and CA. 
+   - [vpn.sh](https://github.com/K0nicki/Scripts/blob/master/vpn.sh) - The script configures and starts OpenVPN service. Demand separate CA machine and connection between them. It works in two modes: Server and CA. 
    
 ### Python:
    - [unixFF.sh](https://github.com/K0nicki/Scripts/blob/master/unixFF.sh) - Change file format of given as parameters files. If there was no input files, it change FF all files with specified extension in workdir (.sh by default). You can change the extension by "-ext" option
