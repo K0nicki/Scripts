@@ -1,0 +1,24 @@
+---
+# Main playbook
+
+# It will work without this block of commands but it may be useful in the future
+- name: Copy files to CA machine
+  hosts: CA_machine
+  remote_user: "{{ user_ca }}"
+
+  roles:
+    - ca
+
+- name: Update controller server
+  hosts: Controller
+  connection: local
+
+  roles:
+    - controller
+
+- name: Updating and upgrading servers 
+  hosts: Others
+  remote_user: "{{ user_default }}"
+
+  roles: 
+    - common

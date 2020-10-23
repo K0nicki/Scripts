@@ -1,0 +1,13 @@
+---
+# tasks only for CA machine
+
+- name: Copy update.sh and vpn.sh scripts
+  copy:
+    src: /home/{{ user_ca }}/{{ item }}
+    dest: /home/{{ user_ca }}/{{ item }}
+    owner: "{{ user_ca }}"
+    group: "{{ user_ca }}"
+    mode: 754
+  loop:
+    - update.sh
+    - vpn.sh

@@ -1,0 +1,17 @@
+[Controller]
+controller
+
+[Controller:vars]
+user_controller=konrad
+
+[CA_machine]
+desktop
+
+[CA_machine:vars]
+user_ca=konrad
+
+[Others:children]
+CA_machine
+
+[Others:vars]
+user_default=konrad

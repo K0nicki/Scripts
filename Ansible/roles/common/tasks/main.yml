@@ -1,0 +1,7 @@
+---
+# This playbook contains common plays that will be run on all nodes
+
+- name: Run the update.sh script
+  become: true
+  become_method: sudo
+  script: "/home/{{ user_default }}/update.sh"
