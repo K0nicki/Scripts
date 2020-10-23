@@ -13,3 +13,6 @@
    
 ### PowerShell:
    - [send.ps1](https://github.com/K0nicki/Scripts/blob/master/send.ps1) - This script automate sending to server. You can change the extension of sending files ("--ext" option), server address ("--addr", format: USER@ADDRESS:PATH)
+
+### Ansible:
+   - [Ansible](https://github.com/K0nicki/Scripts/tree/master/Ansible) - Very simple configuration for Ansible. It was created to easily updating servers and copy my scripts to these machines. One command - ansible-playbook playbook.yml updates the entire topology.
