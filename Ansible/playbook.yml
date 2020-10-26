@@ -9,6 +9,8 @@
   roles:
     - ca
 
+# Can I do it better?
+# --------------------------------
 - name: Update controller server
   hosts: Controller
   connection: local
@@ -22,3 +24,4 @@
 
   roles: 
     - common
+# --------------------------------
