@@ -38,7 +38,7 @@ function remakeFiles {
             $extension = [IO.Path]::GetExtension($file)             # Validate file extension    
             if ($extension -eq ".$ext") {
                 $file = cutPath $file
-                $checked_files[$counter] = "$pwd\$file"
+                $checked_files[$counter] = "$PSScriptRoot\$file"
                 $counter++
             }
         }
@@ -76,7 +76,7 @@ function upload {
 
 # Upload all files w/ appropriate extension in the workdir
 function uploadAll {
-    cmd.exe /c scp -r $pwd\*.$ext $addr                             # Upload all files w/ selected extension
+    cmd.exe /c scp -r $PSScriptRoot\*.$ext $addr                             # Upload all files w/ selected extension
 }
 
 # Validate files
