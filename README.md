@@ -13,6 +13,7 @@
    
 ### PowerShell:
    - [send.ps1](https://github.com/K0nicki/Scripts/blob/master/send.ps1) - Automate sending sripts to server. You can change the extension of sending files ("--ext" option) and server address ("--addr", format: USER@ADDRESS:PATH). In case of no input files, it sends all files with matching extension in workdir
+   - [ssh_key.ps1](https://github.com/K0nicki/Scripts/blob/master/ssh_key.ps1) - Create a public-private key pair. Send the former into the remote server in order to establish secure shell connection without entering password
 
 ### Ansible:
    - [Ansible](https://github.com/K0nicki/Scripts/tree/master/Ansible) - Very simple configuration for Ansible. It was created to easily updating servers and coping my scripts to these machines. One command updates the entire topology!
