@@ -3,7 +3,7 @@
 
 EASYRSA_WEB_PATH="https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.4/EasyRSA-3.0.4.tgz"
 
-# Require root privilage
+# Require root privilege
 if [ $EUID -ne 0 ]; then
     sudo $(pwd -L)/$(basename "$0") $@
     exit 1
@@ -31,9 +31,9 @@ function checkConnection() {
 
     wget -q --tries=10 --timeout=20 --spider http://google.com
     if [[ $? -eq 0 ]]; then
-        $RESULT=0
+        RESULT=0
     else
-        $RESULT=1
+        RESULT=1
     fi
 }
 
@@ -61,7 +61,7 @@ function isOpenVPN() {
     if [ $(whereis openvpn | awk '/:/ {print $2}') == "" ]; then
         installOpenVPN
     else
-        echo $'OpenVPN installed'
+        echo 'OpenVPN installed'
     fi
 }
 
@@ -87,13 +87,13 @@ function uploadEasyRSA() {
 }
 
 function readVars() {
-    printf $'Configurating certificate authority...\nPlease, enter the following information:\n'
-    printf $'Coutry: ' && read -r COUNTRY
-    printf $'Province: ' && read -r PROVINCE
-    printf $'City: ' && read -r CITY
-    printf $'Organization: ' && read -r ORG
-    printf $'Email: ' && read -r EMAIL
-    printf $'Organization Unit: ' && read -r OU
+    printf 'Configurating certificate authority...\nPlease, enter the following information:\n'
+    printf 'Coutry: ' && read -r COUNTRY
+    printf 'Province: ' && read -r PROVINCE
+    printf 'City: ' && read -r CITY
+    printf 'Organization: ' && read -r ORG
+    printf 'Email: ' && read -r EMAIL
+    printf 'Organization Unit: ' && read -r OU
 
     VARS=($COUNTRY $PROVINCE $CITY $ORG $EMAIL $OU)
 }
@@ -225,8 +225,8 @@ function configServer() {
 
 # Tell UFW to allow forwarded packets by default
 function allowForward() {
-    match="DEFAULT_FORWARD_POLICY"
-    CHANGE='DEFAULT_FORWARD_POLICY="ACCEPT"'
+    local match="DEFAULT_FORWARD_POLICY"
+    local CHANGE='DEFAULT_FORWARD_POLICY="ACCEPT"'
 
     sed -i "s/^$match.*$/$CHANGE/" /etc/default/ufw
 }
@@ -368,7 +368,6 @@ function prepareClientConfFile() {
 
 function createConfigScript() {
     CONFIG_SCRIPT_PATH=./client-configs/make_config.sh
-    touch $CONFIG_SCRIPT_PATH
     printf '#!/bin/bash
 
     # First argument: Client identifier
@@ -395,7 +394,6 @@ function createConfigScript() {
 
 function createConfigFile() {
 
-    # printf "\nPLease, enter the client identifier. It will be also a client configuration file name:\n"
     cd $(dirname $CONFIG_SCRIPT_PATH)
     ./make_config.sh $CLIENT_NAME
 }

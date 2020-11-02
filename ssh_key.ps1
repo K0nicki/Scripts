@@ -53,7 +53,7 @@ function generateKeys {
   ssh-keygen.exe -t rsa
 }
 
-# Require root privilage
+# Require root privilege
 if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))  
 {  
   # Start new session with administrator privileges
