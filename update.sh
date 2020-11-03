@@ -8,7 +8,8 @@ if [ $EUID -ne 0 ]; then
 fi
 
 # Update and upgrade
-apt update && apt upgrade -y
+apt update -y
+apt upgrade -y
 apt autoremove -y
 apt clean
 
