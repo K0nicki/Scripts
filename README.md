@@ -7,6 +7,7 @@
    - [update.sh](https://github.com/K0nicki/Scripts/blob/master/update.sh) - Simple script for updating and upgrading server. Additionaly it removes unnecessary files connected with update
    - [vpn.sh](https://github.com/K0nicki/Scripts/blob/master/vpn.sh) - The script configures and starts OpenVPN service. Demand separate CA machine and connection between them. It works in two modes: Server and CA
    - [maintance.sh](https://github.com/K0nicki/Scripts/blob/master/maintance.sh) - This script collects system data. Futhermore it uses crone in order to recursively update data
+   - [installDocker.sh](https://github.com/K0nicki/Scripts/blob/master/installDocker.sh) - Install Docker environment
    
 ### Python:
    - [unixFF.sh](https://github.com/K0nicki/Scripts/blob/master/unixFF.sh) - Change file format of given as parameters files. If there is no input files, it change FF all files in workdir with specified extension (.sh by default). You can change the extension with "-ext" option
