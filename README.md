@@ -9,13 +9,13 @@
    - [maintance.sh](https://github.com/K0nicki/Scripts/blob/master/maintance.sh) - This script collects system data. Futhermore it uses crone in order to recursively update data
    - [installDocker.sh](https://github.com/K0nicki/Scripts/blob/master/installDocker.sh) - Install Docker environment
    
-### Python:
-   - [unixFF.sh](https://github.com/K0nicki/Scripts/blob/master/unixFF.sh) - Change file format of given as parameters files. If there is no input files, it change FF all files in workdir with specified extension (.sh by default). You can change the extension with "-ext" option
-   - [script.sh](https://github.com/K0nicki/Scripts/blob/master/script.sh) - Display given parameters
-   
 ### PowerShell:
    - [send.ps1](https://github.com/K0nicki/Scripts/blob/master/send.ps1) - Automate sending sripts to server. You can change the extension of sending files ("--ext" option) and server address ("--addr", format: USER@ADDRESS:PATH). In case of no input files, it sends all files with matching extension in workdir
    - [ssh_key.ps1](https://github.com/K0nicki/Scripts/blob/master/ssh_key.ps1) - Create a public-private key pair. Send the former into the remote server in order to establish secure shell connection without entering password
+   
+### Python:
+   - [unixFF.sh](https://github.com/K0nicki/Scripts/blob/master/unixFF.sh) - Change file format of given as parameters files. If there is no input files, it change FF all files in workdir with specified extension (.sh by default). You can change the extension with "-ext" option
+   - [script.sh](https://github.com/K0nicki/Scripts/blob/master/script.sh) - Display given parameters
 
 ### Ansible:
    - [Ansible](https://github.com/K0nicki/Scripts/tree/master/Ansible) - Very simple configuration for Ansible. It was created to easily updating servers and coping my scripts to these machines. One command updates the entire topology!
