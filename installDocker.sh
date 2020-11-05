@@ -36,3 +36,6 @@ sudo add-apt-repository \
 # Install the latest Docker Engine version
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+printf 'If you want to not entering sudo command each time when user docker use this:\n
+        sudo usermod -aG docker USER_NAME'
