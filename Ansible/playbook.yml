@@ -2,7 +2,7 @@
 # Main playbook
 
 # It will work without this block of commands but it may be useful in the future
-- name: Copy files to CA machine
+- name: CA machine tasks
   hosts: CA_machine
   remote_user: "{{ user_ca }}"
 
@@ -11,14 +11,14 @@
 
 # Can I do it better?
 # --------------------------------
-- name: Update controller server
+- name: Controller tasks
   hosts: Controller
   connection: local
 
   roles:
     - controller
 
-- name: Updating and upgrading servers 
+- name: Others tasks
   hosts: Others
   remote_user: "{{ user_default }}"
 

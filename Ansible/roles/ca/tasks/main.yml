@@ -11,3 +11,4 @@
   loop:
     - update.sh
     - vpn.sh
+    - maintance.sh

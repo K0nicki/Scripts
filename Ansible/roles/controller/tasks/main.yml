@@ -4,5 +4,7 @@
 - name: Update & Upgrade
   become: true
   become_method: sudo
-  script: "/home/{{ user_controller }}/update.sh"
-  
+  script: "/home/{{ user_controller }}/{{ item }}"
+  loop:
+    - update.sh
+    - maintance.sh
