@@ -5,13 +5,13 @@
 LOG_FILE_PATH=/var/log/sysInfo.log                                 # Path to log file
 SCRIPT_NAME="$(basename $0)"
 
-function isCron() {
+isCron() {
     if [ $(whereis cron | awk '/:/ {print $2}') == "" ]; then
         sudo apt install cron -y
     fi
 }
 
-function memInfo() {
+memInfo() {
     local file=${1}
     printf '
     \n
@@ -22,7 +22,7 @@ function memInfo() {
     df -H | grep -vE '^Filesystem|tmpfs|cdrom' | awk '{ print $5 " " $1 }' >>$file
 }
 
-function commandInfo() {
+commandInfo() {
     local file=${1}
     printf '
     \n
@@ -33,7 +33,7 @@ function commandInfo() {
     cat .bash_history | tail -n 15 >>$file                        # List of last used commands
 }
 
-function loginInfo() {
+loginInfo() {
     local file=${1}
     printf '
     \n
@@ -44,7 +44,7 @@ function loginInfo() {
     last -n 15 >>$file                                            # List of last 15 logins
 }
 
-function cronTime() {
+cronTime() {
 
     local my_privilege="0 6     "
     local privilege="$(cat /etc/crontab | grep cron.daily | awk -F "root" '{print $1}')"
