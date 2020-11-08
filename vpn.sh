@@ -3,31 +3,8 @@
 
 EASYRSA_WEB_PATH="https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.4/EasyRSA-3.0.4.tgz"
 
-# Require root privilege
-if [ $EUID -ne 0 ]; then
-    sudo $(pwd -L)/$(basename "$0") $@
-    exit 1
-fi
-
-# Extends --server and --ca
-if [ $# -eq 0 ]; then
-    printf "Use --server or --ca to determine appropriate mode\n"
-    exit 1
-else
-    for i in "$@"; do
-        case $i in
-        -s | --server)
-            SERVER=1
-            ;;
-        -c | --ca)
-            SERVER=0
-            ;;
-        esac
-    done
-fi
-
 # Check the Internet connectivity
-function checkConnection() {
+checkConnection() {
 
     wget -q --tries=10 --timeout=20 --spider http://google.com
     if [[ $? -eq 0 ]]; then
@@ -42,22 +19,26 @@ function checkConnection() {
 # useful for not entering passwords each time when we have to send files to
 # server or ca machines
 #-----------------------------------------------------------------------------
-
+createSSHkeyPair() {
 # Check if these files exist
-[[ -e ~/.ssh/id_rsa.pub ]] || ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa              
-[[ -e ~/.ssh/id_rsa ]] || ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+    [[ -e ~/.ssh/id_rsa.pub ]] || ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa              
+    [[ -e ~/.ssh/id_rsa ]] || ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
-printf "\nEnter your $([[ $SERVER -eq 1 ]] && printf 'CA' || printf 'server') machine user name: " && read USER_NAME            # Ternary operator usage
-printf "\nEnter your $([[ $SERVER -eq 1 ]] && printf 'CA' || printf 'server') machine IP address: " && read IP_ADDRESS
-printf 'Creating file for ssh key ...\n'
-ssh $USER_NAME@$IP_ADDRESS mkdir -p .ssh
-printf "Sending public key...\n" 
-cat ~/.ssh/id_rsa.pub | ssh $USER_NAME@$IP_ADDRESS 'cat >>.ssh/authorized_keys && chmod 600 .ssh/authorized_keys'
+    printf "\nEnter your $([[ $SERVER -eq 1 ]] && printf 'CA' || printf 'server') machine user name: " && read USER_NAME            # Ternary operator usage
+    printf "\nEnter your $([[ $SERVER -eq 1 ]] && printf 'CA' || printf 'server') machine IP address: " && read IP_ADDRESS
+    printf 'Creating file for ssh key ...\n'
+    ssh $USER_NAME@$IP_ADDRESS mkdir -p .ssh
+    
+    # In case of no connection between machines exit
+    [ $? -ne 0 ] && printf "Can't connect to $IP_ADDRESS"; exit 1; 
 
+    printf "Sending public key...\n" 
+    cat ~/.ssh/id_rsa.pub | ssh $USER_NAME@$IP_ADDRESS 'cat >>.ssh/authorized_keys && chmod 600 .ssh/authorized_keys'
+}
 #--------------------------------------------------------------------------------------------------------
 
 # Check if the OpenVPN is installed
-function isOpenVPN() {
+isOpenVPN() {
     if [ $(whereis openvpn | awk '/:/ {print $2}') == "" ]; then
         installOpenVPN
     else
@@ -65,12 +46,12 @@ function isOpenVPN() {
     fi
 }
 
-function installOpenVPN() {
+installOpenVPN() {
     sudo apt install openvpn -y
 }
 
 # Check is the EasyRSA uploaded and save path
-function isEasyRSA() {
+isEasyRSA() {
     if [ "$(sudo find . -maxdepth 3 -type d -print | awk -F "/" '{for (i=1;i<=4;i++)print $i}' | grep "EasyRSA")" == "" ]; then
         uploadEasyRSA
     else
@@ -79,14 +60,14 @@ function isEasyRSA() {
     fi
 }
 
-function uploadEasyRSA() {
+uploadEasyRSA() {
     sudo wget -P . $EASYRSA_WEB_PATH
     tar xvf EasyRSA-3.0.4.tgz # Unzip
     sudo rm EasyRSA-3.0.4.tgz # Remove unnecessary .tgz file
     PATH_TO_EASYRSA=$(pwd -L)/EasyRSA-3.0.4
 }
 
-function readVars() {
+readVars() {
     printf 'Configurating certificate authority...\nPlease, enter the following information:\n'
     printf 'Coutry: ' && read -r COUNTRY
     printf 'Province: ' && read -r PROVINCE
@@ -98,7 +79,7 @@ function readVars() {
     VARS=($COUNTRY $PROVINCE $CITY $ORG $EMAIL $OU)
 }
 
-function replaceVars() {
+replaceVars() {
     OLD_VARS=("US" "California" "San Francisco" "Copyleft Certificate Co" "me@example.net" "My Organizational Unit")
     for i in $(seq 0 $((${#OLD_VARS[@]} - 1))); do
         sed -i "/^#.*${OLD_VARS[i]}/s/^#//g" $PATH_TO_EASYRSA/vars   # Uncomment appropriate line
@@ -106,7 +87,7 @@ function replaceVars() {
     done
 }
 
-function configEasyRSA() {
+configEasyRSA() {
     cp $PATH_TO_EASYRSA/vars.example $PATH_TO_EASYRSA/vars
 
     # Modify file
@@ -115,11 +96,11 @@ function configEasyRSA() {
 
 }
 
-function installInotifyTool() {
+installInotifyTool() {
     sudo apt install inotify-tools -y
 }
 
-function isInotifyTools() {
+isInotifyTools() {
     if [ "$(whereis inotifywait | awk '/:/ {print $2}')" == "" ]; then
         installInotifyTool
     else
@@ -130,14 +111,14 @@ function isInotifyTools() {
 # -------------------------------------------------------------------------------------------
 # Block of waiting functions. The script will not continue until it receives the appropriate files
 # -------------------------------------------------------------------------------------------
-function waitForReq() {
+waitForReq() {
 
     while read i; do if [ "$i" = server.req ]; then break; fi; done \
         < <(inotifywait -e create,open --format '%f' --quiet /tmp --monitor)
 
 }
 
-function waitForCrt() {
+waitForCrt() {
 
     while read i; do if [ "$i" == ca.crt ]; then break; fi; done \
         < <(inotifywait -e create,open --format '%f' --quiet /tmp --monitor)
@@ -146,7 +127,7 @@ function waitForCrt() {
         < <(inotifywait -e create,open --format '%f' --quiet /tmp --monitor)
 }
 
-function waitForCaReq() {
+waitForCaReq() {
 
     rm /tmp/server.req
 
@@ -155,19 +136,19 @@ function waitForCaReq() {
 }
 
 # Remove unnecessary files
-function cleanCA() {
+cleanCA() {
 
     rm /tmp/clientName.conf
     rm /tmp/client.req
     rm /tmp/server.req
 }
 
-function finishCA() {
+finishCA() {
     cleanCA
     printf "\nThe CA machine shas finished its job!\nGo to your OpenVPn server to finish configuration!\n"
 }
 
-function waitForServerCrt() {
+waitForServerCrt() {
 
     printf "\nWaiting for the client .crt file. Send them from CA to the server's /tmp directory"
 
@@ -175,13 +156,13 @@ function waitForServerCrt() {
         < <(inotifywait -e create,open --format '%f' --quiet /tmp --monitor)
 }
 
-function sendClientName() {
+sendClientName() {
     printf "$CLIENT_NAME" >CLIENT_NAME.conf
     scp -i ~/.ssh/id_rsa ./CLIENT_NAME.conf "$USER_NAME@$IP_ADDRESS:/tmp"
     rm ./CLIENT_NAME.conf
 }
 
-function generateKeyPair() {
+generateKeyPair() {
 
     mkdir -p ./client-configs/keys
 
@@ -207,7 +188,7 @@ function generateKeyPair() {
     cp /etc/openvpn/ca.crt ./client-configs/keys/
 }
 
-function configServer() {
+configServer() {
     cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz /etc/openvpn/
     gzip -d /etc/openvpn/server.conf.gz
     SERVER_CONF=/etc/openvpn/server.conf
@@ -224,14 +205,14 @@ function configServer() {
 }
 
 # Tell UFW to allow forwarded packets by default
-function allowForward() {
+allowForward() {
     local match="DEFAULT_FORWARD_POLICY"
     local CHANGE='DEFAULT_FORWARD_POLICY="ACCEPT"'
 
     sed -i "s/^$match.*$/$CHANGE/" /etc/default/ufw
 }
 
-function addNatRules() {
+addNatRules() {
 
     if grep -q "POSTROUTING -s 10.8.0.0/8" /etc/ufw/before.rules; then
         txt="#START OPENVPN RULES\n# NAT table rules\n*nat\n:POSTROUTING ACCEPT [0:0]\n# Allow traffic from OpenVPN client to $dev\n-A POSTROUTING -s 10.8.0.0/8 -o $dev -j MASQUERADE\nCOMMIT\n# END OPENVPN RULES\n"
@@ -241,7 +222,7 @@ function addNatRules() {
     fi
 }
 
-function editUFW() {
+editUFW() {
     addNatRules
     allowForward
 
@@ -254,7 +235,7 @@ function editUFW() {
     ufw enable
 }
 
-function configNetworking() {
+configNetworking() {
 
     # uncomment portforwarding
     sed -i 's/^#net.ipv4.*/net.ipv4.ip_forward=1/' /etc/sysctl.conf
@@ -267,7 +248,7 @@ function configNetworking() {
     editUFW
 }
 
-function automaticStart() {
+automaticStart() {
     printf "Should the OpenVPN service start automatically? yes/no\n" && read -r ANSWER
     EXIT=0
     while [ $EXIT -ne 1 ]; do
@@ -282,12 +263,12 @@ function automaticStart() {
     done
 }
 
-function runService() {
+runService() {
     systemctl start openvpn@server
     automaticStart
 }
 
-function getServerIp() {
+getServerIp() {
 
     # Show ip interfaces and addresses
     printf "\n"
@@ -306,7 +287,7 @@ function getServerIp() {
 }
 
 # Uncomment some basic configuration
-function unComment() {
+unComment() {
 
     UNCOMMENT_LINES=("user" "group")
     for i in $(seq 0 $((${#UNCOMMENT_LINES[@]} - 1))); do
@@ -316,7 +297,7 @@ function unComment() {
 }
 
 # Similary to upper function, but reverse meaning
-function comment() {
+comment() {
 
     COMMENT_LINES=("tls-auth" "ca" "cert" "key")
     for i in $(seq 0 $((${#COMMENT_LINES[@]} - 1))); do
@@ -325,13 +306,13 @@ function comment() {
 }
 
 # Insert line
-function addKeyDirection() {
+addKeyDirection() {
 
     sed -i '/auth SHA256/a key-direction 1' $BASE_CONFIG
 
 }
 
-function dnsResolv() {
+dnsResolv() {
     printf "
     \n; script-security 2
     ; up /etc/openvpn/update-resolv-conf
@@ -345,7 +326,7 @@ function dnsResolv() {
     ; dhcp-option DOMAIN-ROUTE ." >>$BASE_CONFIG
 }
 
-function prepareClientConfFile() {
+prepareClientConfFile() {
     printf "Creating configuration file for client..."
     # Create separate dir for client config file
     mkdir -p ./client-configs/files
@@ -366,7 +347,7 @@ function prepareClientConfFile() {
 
 }
 
-function createConfigScript() {
+createConfigScript() {
     CONFIG_SCRIPT_PATH=./client-configs/make_config.sh
     printf '#!/bin/bash
 
@@ -392,20 +373,20 @@ function createConfigScript() {
     chmod +x $CONFIG_SCRIPT_PATH
 }
 
-function createConfigFile() {
+createConfigFile() {
 
     cd $(dirname $CONFIG_SCRIPT_PATH)
     ./make_config.sh $CLIENT_NAME
 }
 
 # Remove unnecessary files
-function cleanServ() {
+cleanServ() {
 
     rm /tmp/ca.crt
     rm /tmp/server.crt
 }
 
-function finishServ() {
+finishServ() {
 
     cleanServ
     printf "\n
@@ -415,7 +396,7 @@ function finishServ() {
 
 }
 
-function ca() {
+ca() {
     # Check and install the OpenVPN
     isOpenVPN
 
@@ -457,7 +438,7 @@ function ca() {
     finishCA
 }
 
-function server() {
+server() {
     # Check and install the OpenVPN
     isOpenVPN
 
@@ -503,6 +484,34 @@ function server() {
     finishServ
 }
 
+
+# Require root privilege
+if [ $EUID -ne 0 ]; then
+    sudo $(pwd -L)/$(basename "$0") $@
+    exit 1
+fi
+
+# Extends --server and --ca
+if [ $# -eq 0 ]; then
+    printf "Use --server or --ca to determine appropriate mode\n"
+    exit 1
+else
+    for i in $@; do
+        case $i in
+        -s | --server)
+            SERVER=1
+            ;;
+        -c | --ca)
+            SERVER=0
+            ;;
+        esac
+    done
+fi
+
+
+# Set up ssh connection between machines
+createSSHkeyPair
+
 if [ checkConnection ]; then
     if [ $SERVER -eq 1 ]; then
         server
@@ -519,7 +528,7 @@ fi
 # ---------------------------------------------------------------------------
 # [ ] Should validate all user's input
 # [x] Use ssh-keys
-# [ ] Imoa the IP dev shouldn't be select in this way. Get it from user?
+# [ ] Imo the IP dev shouldn't be select in this way. Get it from user?
 # [x] Don't ask about client nickname, just get it from $CLIENT_NAME
 # [x] Check if networking configuration has already been performed
 # ---------------------------------------------------------------------------
