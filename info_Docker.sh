@@ -1,6 +1,33 @@
 #!/bin/bash
-# Script written to facilitate selecting informations about active containers,
-# created images and ???
+# Script written to facilitate selecting information about created images, 
+# active containers, their logs and status
+
+LOG_FILE_PATH=docker_logs/logs.log
+LOG_PRECISION=15
+
+# User-friendly output functions
+center_printf() {
+    printf "\t\t\t\t$1"
+}
+
+banner_print() {
+    printf '\n'
+    line_print
+    center_printf "$1 INFO\n"
+    line_print
+    printf '\n'
+}
+
+number_print() {
+
+    center_printf "Number of images\n"
+    center_printf "      | $1 |\n\n"
+}
+
+line_print() {
+        for i in {1..60}; do printf '-'; done
+        printf '\n'
+}
 
 # Check docker priveleges
 dockerMember() {
@@ -20,56 +47,77 @@ checkPrivilege() {
 # Dispay info about images
 imageInfo() {
 
-    printf '\n
-    ------------------------------------------------------------ \n
-                            IMAGES INFO\n
-    ------------------------------------------------------------ \n'
+    # Banner
+    banner_print "IMAGES"
 
     # Number of images
     local imgNumber=$(docker image ls | tail -n +2 | wc -l)
     
-    printf "
-                            Number of images
-                                | $imgNumber |
-                            \n"
+    # Output
+    number_print "$imgNumber"
+    center_printf "Images list\n"
+    line_print
 
-    printf "
-                            Images list
-    ------------------------------------------------------------ \n"
     # Images list and details (repo, tag, ID, created time, size)
     docker image ls 
 }
 
+# Collect logs
 logs() {
-    printf '\n
-    ------------------------------------------------------------ \n
-                            Logs\n
-    ------------------------------------------------------------ \n'
-    docker container logs tutorial | tail -n $1
+
+    # Banner 
+    line_print
+    center_printf "$1 container logs\n"
+    line_print
+
+    # Logs
+    docker container logs $1 | tail -n $2
+    printf '\n'
+}
+
+# Create and clear log file
+logs_location() {
+    
+    # Create dir for logs if don't exists yet
+    mkdir -p $(dirname $LOG_FILE_PATH)
+
+    # Clear logs file if exist
+    >$LOG_FILE_PATH
 }
 
 # Display info about containers
 containerInfo() {
 
-    printf '\n
-    ------------------------------------------------------------ \n
-                            CONTAINERS INFO\n
-    ------------------------------------------------------------ \n'
     # Number of containers
     local contNumber=$(docker container ls | tail -n +2 | wc -l)
+    local contNames=$(docker ps --format '{{.Names}}')
 
-    printf "
-                            Number of containers
-                                | $contNumber |
-                            \n"
-    printf "
-                            Containers list
-    ------------------------------------------------------------ \n"
+    # Banner
+    banner_print "CONTAINERS"
+    
+    # Output
+    number_print $contNumber
+    center_printf "Containers list\n"
+    line_print
+
     # Containers list and their details (ID, img, command, created time, status and exposed ports)
     docker container ls 
 
-    # Display logs. Only last 8 lines
-    logs 8
+    printf '\n'
+    center_printf "Containers info\n"
+
+    # Prepare location for logs
+    logs_location
+
+    # Display stats for each container
+    for container in ${contNames[@]}; do
+        line_print
+        docker container stats $container --no-stream
+
+        # Display logs. Only last 8 lines
+        logs $container $LOG_PRECISION >>$LOG_FILE_PATH
+    done
+
 }
 
 # The hearth of the script
@@ -85,4 +133,5 @@ if [ checkPrivilege ]; then
     for fun in ${funcs[@]}; do
         $fun
     done
+    printf "\n Created log file in $LOG_FILE_PATH\n"
 fi
