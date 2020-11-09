@@ -4,10 +4,14 @@
 
 ## Contents:
 ### Shell:
+  ------ SERVERS ------ 
    - [update.sh](https://github.com/K0nicki/Scripts/blob/master/update.sh) - Simple script for updating and upgrading server. Additionaly it removes unnecessary files connected with update
    - [vpn.sh](https://github.com/K0nicki/Scripts/blob/master/vpn.sh) - The script configures and starts OpenVPN service. Demand separate CA machine and connection between them. It works in two modes: Server and CA
    - [maintance.sh](https://github.com/K0nicki/Scripts/blob/master/maintance.sh) - This script collects system data. Futhermore it uses crone in order to recursively update data
+   
+   ------ DOCKER ------ 
    - [installDocker.sh](https://github.com/K0nicki/Scripts/blob/master/installDocker.sh) - Install Docker environment
+   - [info_Docker.sh](https://github.com/K0nicki/Scripts/blob/master/info_Docker.sh) - Display Docker images and containers information. Save containeers logs into the file.
    
 ### PowerShell:
    - [send.ps1](https://github.com/K0nicki/Scripts/blob/master/send.ps1) - Automate sending sripts to server. You can change the extension of sending files ("--ext" option) and server address ("--addr", format: USER@ADDRESS:PATH). In case of no input files, it sends all files with matching extension in workdir
