@@ -115,9 +115,17 @@ containerInfo() {
         docker container stats $container --no-stream
 
         # Display logs. Only last 8 lines
-        logs $container $LOG_PRECISION >>$LOG_FILE_PATH
+        logs $container $LOG_PRECISION >>$LOG_FILE_PATH 2>&1
     done
 
+}
+
+help_info() {
+    printf 'Usage: info_Docker.sh [OPTIONS]...
+Print basic info about docker'\''s images and containers\n
+-c, --container\t\tDisplay containers information and save logs into log file
+-i, --images\t\tDisplay images information
+'
 }
 
 # The hearth of the script
@@ -128,10 +136,30 @@ funcs=(
 
 # Main loop
 if [ checkPrivilege ]; then
+    if [ $# -eq 0 ]; then
+        for fun in ${funcs[@]}; do
+            $fun
+        done
+        printf "\n Created log file in $LOG_FILE_PATH\n"
+    else
 
-    # Main loop
-    for fun in ${funcs[@]}; do
-        $fun
-    done
-    printf "\n Created log file in $LOG_FILE_PATH\n"
+    # Parse arguments
+        for i in $@; do
+            case $i in
+            -h | --help)
+                help_info
+            ;;
+            -c | --container)
+                containerInfo
+            ;;
+            -i | --images)
+                imageInfo
+            ;;
+            *)
+                printf 'Unknown option. Try --help\n'
+                exit 1
+            ;;
+            esac
+        done
+    fi
 fi
