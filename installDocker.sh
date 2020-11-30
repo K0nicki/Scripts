@@ -23,8 +23,11 @@ sudo apt-get install \
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
 # Set up the stable repository
+# Get distro name
+. /etc/os-release
+os_release=$(cat /etc/os-release | grep "ID_LIKE" | head -n 1 | awk -F '=' '{print $2}')
 sudo add-apt-repository \
-   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   "deb [arch=amd64] https://download.docker.com/linux/"$"(os_release)"" \
    $(lsb_release -cs) \
    stable"
 
@@ -38,4 +41,4 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io
 
 printf 'If you want to not entering sudo command each time when user docker use this:\n
-        sudo usermod -aG docker USER_NAME'
+sudo usermod -aG docker USER_NAME\n'
