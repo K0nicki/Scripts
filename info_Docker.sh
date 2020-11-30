@@ -29,19 +29,18 @@ line_print() {
         printf '\n'
 }
 
-# Check docker priveleges
-dockerMember() {
-    groups | awk -F " " '{{for (i=1; i<=len; i++) if ($i=="docker") {exit 0 } } exit 1}' len=$(groups |wc -w)
-}
-
 2smallprvlg() {
-    printf 'Require sudo or docker group privilege to execute this script'
+    printf 'Require sudo or docker group privilege to execute this script\n'
     exit 1
 }
 
+# Check docker priveleges
 checkPrivilege() {
-    dockerMember
-    [ $? -eq 0 ] && printf true || 2smallprvlg
+
+    # Check docker version, ignore all outputs
+    docker version &>/dev/null
+    # Validate privileges
+    [[ $? = 0 ]] && printf 0 || printf 1
 }
 
 # Dispay info about images
@@ -135,7 +134,7 @@ funcs=(
     )
 
 # Main loop
-if [ checkPrivilege ]; then
+if [[ $(checkPrivilege) = 0 ]]; then
     if [ $# -eq 0 ]; then
         for fun in ${funcs[@]}; do
             $fun
@@ -162,4 +161,6 @@ if [ checkPrivilege ]; then
             esac
         done
     fi
+else
+    2smallprvlg
 fi
