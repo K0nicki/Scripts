@@ -8,6 +8,7 @@
    - [update.sh](https://github.com/K0nicki/Scripts/blob/master/update.sh) - Simple script for updating and upgrading server. Additionaly it removes unnecessary files connected with update
    - [vpn.sh](https://github.com/K0nicki/Scripts/blob/master/vpn.sh) - The script configures and starts OpenVPN service. Demand separate CA machine and connection between them. It works in two modes: Server and CA
    - [maintance.sh](https://github.com/K0nicki/Scripts/blob/master/maintance.sh) - This script collects system data. Futhermore it uses crone in order to recursively update data
+   - [.bash_aliases](https://github.com/K0nicki/Scripts/blob/master/.bash_aliases) - It is not script but this file contains some useful aliases for better using Linux command line, settings for colorful prompt and cute images that will be displayed when the terminal session starts 
    
    ------ DOCKER ------ 
    - [installDocker.sh](https://github.com/K0nicki/Scripts/blob/master/installDocker.sh) - Install Docker environment
