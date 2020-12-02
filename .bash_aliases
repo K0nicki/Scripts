@@ -13,7 +13,8 @@ alias back="popd &>/dev/null"
 rand=$RANDOM
 number=$(($rand % 6))
 lightness=$(($rand % 2))
-export PS1="\e["$lightness";3"$number"m[\u@\h \W]\$ \e[m"
+export PS1="${debian_chroot}\[\033["$lightness";3"$number"m\]\u@\h\[\033[00m\]:\[\033[0;34m\]\w\[\033[00m\]\$ "
+
 
 # Display random image when open new terminal
 case $(($rand % 8)) in
