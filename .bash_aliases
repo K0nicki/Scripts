@@ -13,7 +13,10 @@ alias back="popd &>/dev/null"
 rand=$RANDOM
 number=$(( $rand % 6 ))
 lightness=$(( $rand % 2 ))
-export PS1="${debian_chroot:+($debian_chroot)}\[\033["$lightness";3"$number"m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+emojis=(🤔 😬 🤷‍ 🤫 👿 😒 🎁 😥 🤢 😁 😎)
+emojis_len=11                             # ${#emojis[@]} doesn't detect propertly array length, can I fix this?
+emoji_numb=$(( $rand % $emojis_len))
+export PS1="${emojis[$emoji_numb]} ${debian_chroot:+($debian_chroot)}\[\033["$lightness";3"$number"m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
 
 
 # Display random image when open new terminal
