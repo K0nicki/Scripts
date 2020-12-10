@@ -25,9 +25,9 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 # Set up the stable repository
 # Get distro name
 . /etc/os-release
-os_release=$(cat /etc/os-release | grep "ID_LIKE" | head -n 1 | awk -F '=' '{print $2}')
+os_release=$(cat /etc/os-release | grep "ID" | head -n 1 | awk -F '=' '{print $2}')
 sudo add-apt-repository \
-   "deb [arch=amd64] https://download.docker.com/linux/"$"(os_release)"" \
+   "deb [arch=amd64] https://download.docker.com/linux/"$os_release" \
    $(lsb_release -cs) \
    stable"
 
