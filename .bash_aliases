@@ -13,6 +13,10 @@ alias back="popd &>/dev/null"
 rand=$RANDOM
 number=$(( $rand % 6 ))
 lightness=$(( $rand % 2 ))
+# Remove black color
+if [ $number -eq 0 ]; then
+	lightness=1
+fi
 emojis=(🤔 😬 🤷‍ 🤫 👿 😒 🎁 😥 🤢 😁 😎)
 emojis_len=11                             # ${#emojis[@]} doesn't detect propertly array length, can I fix this?
 emoji_numb=$(( $rand % $emojis_len))
