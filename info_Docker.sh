@@ -20,8 +20,8 @@ banner_print() {
 
 number_print() {
 
-    center_printf "Number of images\n"
-    center_printf "      | $1 |\n\n"
+    center_printf "Number of $1\n"
+    center_printf "      | $2 |\n\n"
 }
 
 line_print() {
@@ -29,18 +29,42 @@ line_print() {
         printf '\n'
 }
 
-2smallprvlg() {
+# In case of executing script by non privileged user
+toosmallprvlg() {
     printf 'Require sudo or docker group privilege to execute this script\n'
     exit 1
+}
+
+# If docker service is inactive, run it or exit
+run_docker_service() {
+    
+    printf "Docker service seems to be inactive. Do you want to run it?\n[y/n]: "
+    read -r answer
+
+    if [ "$answer" == "y" ]; then
+        echo "Starting docker service..."
+        sudo systemctl start docker
+        # sudo service docker start
+        echo "Done"
+    elif [ "$answer" == "n" ]; then
+        echo "Cannot execute script without docker deamon. Please run it manually"
+        exit 1
+    else
+        echo "Wrong key!"
+        run_docker_service
+    fi
 }
 
 # Check docker priveleges
 checkPrivilege() {
 
+    # Check if docker service is active
+    if [ "$(systemctl status docker |grep -i active |awk '{print $2}')" != "active" ]; then
+        run_docker_service
+    fi
+
     # Check docker version, ignore all outputs
     docker version &>/dev/null
-    # Validate privileges
-    [[ $? = 0 ]] && printf 0 || printf 1
 }
 
 # Dispay info about images
@@ -53,7 +77,7 @@ imageInfo() {
     local imgNumber=$(docker image ls | tail -n +2 | wc -l)
     
     # Output
-    number_print "$imgNumber"
+    number_print "images" "$imgNumber"
     center_printf "Images list\n"
     line_print
 
@@ -88,19 +112,19 @@ logs_location() {
 containerInfo() {
 
     # Number of containers
-    local contNumber=$(docker container ls | tail -n +2 | wc -l)
-    local contNames=$(docker ps --format '{{.Names}}')
+    local contNumber=$(docker container ls -al | tail -n +2 | wc -l)
+    local contNames=$(docker ps -al --format '{{.Names}}')
 
     # Banner
     banner_print "CONTAINERS"
     
     # Output
-    number_print $contNumber
+    number_print "containers" $contNumber
     center_printf "Containers list\n"
     line_print
 
     # Containers list and their details (ID, img, command, created time, status and exposed ports)
-    docker container ls 
+    docker container ls -al
 
     printf '\n'
     center_printf "Containers info\n"
@@ -134,7 +158,8 @@ funcs=(
     )
 
 # Main loop
-if [[ $(checkPrivilege) = 0 ]]; then
+checkPrivilege
+if [ $? -eq 0 ]; then
     if [ $# -eq 0 ]; then
         for fun in ${funcs[@]}; do
             $fun
@@ -159,8 +184,7 @@ if [[ $(checkPrivilege) = 0 ]]; then
                 exit 1
             ;;
             esac
-        done
-    fi
+        doneP
 else
-    2smallprvlg
+    toosmallprvlg
 fi
