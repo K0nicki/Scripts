@@ -13,7 +13,7 @@ deleteMemorial() {
 }
 
 # Push into someones ($1) life some feelings ($2)
-push() {
+pushMemorial() {
     printf "I wish $1 a lot of $2!\n"
 }
 
@@ -35,14 +35,14 @@ footer() {
 createGreetingsCard() {
 
     header
-    for i in ${badMemories[@]}; do
+    for memorial in ${badMemories[@]}; do
         printf "\t\t"
-        deleteMemorial $person $i
+        deleteMemorial $person $memorial
     done
     printf "\n"
-    for i in ${newMemories[@]}; do
+    for memorial in ${newMemories[@]}; do
         printf "\t\t"
-        push $person $i
+        pushMemorial $person $memorial
     done
     footer
     
