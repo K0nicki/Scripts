@@ -1,6 +1,12 @@
 #!/bin/bash
 # Install docker environment
 
+# Require root privilage
+if [ $EUID -ne 0 ]; then
+    sudo $(pwd -L)/`basename "$0"`
+    exit
+fi
+
 # Get distro name
 . /etc/os-release
 os_release=$(cat /etc/os-release | grep "ID" | head -n 1 | awk -F '=' '{print $2}')
@@ -10,12 +16,12 @@ os_release=$(cat /etc/os-release | grep "ID" | head -n 1 | awk -F '=' '{print $2
 # ----------------------------------------------------------
 
 # Start with nothing
-sudo apt-get remove docker docker-engine docker.io containerd runc
+apt-get remove docker docker-engine docker.io containerd runc
 
 # Update and install necessary packages
-sudo apt-get update
+apt-get update
 
-sudo apt-get install \
+apt-get install \
     apt-transport-https \
     ca-certificates \
     curl \
@@ -26,7 +32,7 @@ sudo apt-get install \
 curl -fsSL https://download.docker.com/linux/"$os_release"/gpg | sudo apt-key add -
 
 # Set up the stable repository
-sudo add-apt-repository \
+add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/"$os_release" \
    $(lsb_release -cs) \
    stable"
@@ -36,8 +42,11 @@ sudo add-apt-repository \
 # ----------------------------------------------------------
 
 # Install the latest Docker Engine version
-sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli docker.io containerd.io
+apt-get update
+apt-get install docker-ce docker-ce-cli containerd.io
 
-printf 'If you want to not entering sudo command each time when user docker use this:\n
+# Create docker group
+addgroup docker 
+
+printf 'If you want to not entering sudo command each time when user docker use this:
 sudo usermod -aG docker USER_NAME\n'
