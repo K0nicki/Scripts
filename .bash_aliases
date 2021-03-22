@@ -5,23 +5,25 @@ alias ll="ls -al"
 # clear alias
 alias c="clear"
 
-# Path tracking aliases
-alias cd="pushd &>/dev/null"
-alias back="popd &>/dev/null"
+update() {
+    cd ~/Scripts && ./update.sh && cd - &>/dev/null
+}
+
+# SelEct emoji depending on last exit code
+emoji() {
+    [[ $? -eq 0 ]] && echo 🤔 || echo 😡
+}
 
 # Colorful prompt
-rand=$RANDOM
-number=$(( $rand % 6 ))
-lightness=$(( $rand % 2 ))
-# Remove black color
-if [ $number -eq 0 ]; then
-	lightness=1
+prompt_color='\[\033[0;34m\]'
+info_color='\[\033[01;33m\]'
+if [ "$EUID" -eq 0 ]; then # Change prompt colors for root user
+	prompt_color='\[\033[0;34m\]'
+	info_color='\[\033[1;31m\]'
+	prompt_symbol=💀
 fi
-emojis=(🤔 😬 🤷‍ 🤫 👿 😒 🎁 😥 🤢 😁 😎)
-emojis_len=11                             # ${#emojis[@]} doesn't detect propertly array length, can I fix this?
-emoji_numb=$(( $rand % $emojis_len))
-export PS1="${emojis[$emoji_numb]} ${debian_chroot:+($debian_chroot)}\[\033["$lightness";3"$number"m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
 
+PS1=$prompt_color'┌──${debian_chroot:+($debian_chroot)──}('$info_color'\u $(emoji) \h'$prompt_color')-[\[\033[0;33m\]\w'$prompt_color']\n'$prompt_color'└─'$info_color'\$\[\033[0m\] '
 
 # Display random image when open new terminal
 if [ -f ~/.bash_img ]; then
